@@ -1,166 +1,356 @@
 import os
 import streamlit as st
 import chromadb
-from chromadb.utils.embedding_functions import GeminiEmbeddingFunction
-import google.generativeai as genai
+from chromadb.utils.embedding_functions import GoogleGeminiEmbeddingFunction
+from google import genai
 
-# 1. PAGE LAYOUT CONFIGURATION
+
+# 1. PAGE CONFIGURATION
+
 st.set_page_config(
-    page_title="ShutterBuddy: Photography RAG Assistant",
+    page_title="BotretFoto: Photography RAG Assistant",
     page_icon="📸",
     layout="wide"
 )
 
-# Application title
-st.title("📸 ShutterBuddy")
-st.markdown("##### *Your friendly neighborhood photography mentor—helping you learn from the ground up!*")
+st.title("📸 BotretFoto")
+st.markdown(
+    "##### *Your friendly neighborhood photography mentor—"
+    "helping you learn from the ground up!*"
+)
 
-# 2. SIDEBAR FOR CONFIGURATION
+# 2. SIDEBAR
+
 st.sidebar.header("⚙️ Configuration")
 
-# API Key input
-api_key = st.sidebar.text_input("Enter Gemini API Key", type="password", value=os.environ.get("GEMINI_API_KEY", ""))
+api_key = st.sidebar.text_input(
+    "Enter Gemini API Key",
+    type="password",
+    value=os.environ.get("GEMINI_API_KEY", "")
+)
 
-# Reset chat button
 if st.sidebar.button("🗑️ Clear Conversation"):
     st.session_state.messages = []
-    st.success("Conversation cleared!")
     st.rerun()
 
-# The Creative Toggle Parameter: Explanation level selector
 explanation_level = st.sidebar.radio(
     "💡 Mentor Explanation Style",
-    options=["Simplified Mentor Mode", "Detailed Instructor Mode"],
-    help="Simplified Mode uses simple everyday analogies and avoids heavy jargon. Detailed Mode provides full technical specifications, f-stops, shutter speeds, and camera physics."
+    options=[
+        "Simplified Mentor Mode",
+        "Detailed Instructor Mode"
+    ],
+    help=(
+        "Simplified Mode uses simple everyday analogies. "
+        "Detailed Mode provides technical photography explanations."
+    )
 )
 
 st.sidebar.markdown("""
 ---
-### 🛠️ How ShutterBuddy Works:
-1. **RAG Vector Search:** Queries our local database containing expert-curated photography guides.
-2. **Simplified Mode:** Translates concepts into easy everyday analogies (e.g., aperture = window blinds).
-3. **Detailed Mode:** Breaks down exact camera settings (e.g., 1/500s, f/2.8, ISO 100).
+### 🛠️ How BotretFoto Works:
+
+1. **RAG Vector Search:** Queries our local photography knowledge database.
+2. **Simplified Mode:** Explains photography using simple analogies.
+3. **Detailed Mode:** Explains camera settings and technical concepts.
 """)
 
-# 3. INITIALIZE VECTOR DATABASE & GEMINI CONFIGURATION
-def get_db_collection(api_key):
+
+# 3. CHECK API KEY
+
+
+if not api_key:
+    st.info(
+        "👈 Please enter your Gemini API Key in the sidebar "
+        "to start learning!"
+    )
+    st.stop()
+
+
+# 4. GEMINI CLIENT
+
+
+try:
+    # Google GenAI SDK reads the API key explicitly here.
+    gemini_client = genai.Client(api_key=api_key)
+
+except Exception as e:
+    st.error(f"Failed to initialize Gemini client: {e}")
+    st.stop()
+
+
+
+# 5. LOAD CHROMA VECTOR DATABASE
+
+
+@st.cache_resource
+def get_db_collection():
     try:
-        # Load persistent ChromaDB client
-        client = chromadb.PersistentClient(path="./photography_db")
-        
-        # Setup Gemini embedding function
-        embedding_fn = GeminiEmbeddingFunction(
-            model_name="models/embedding-001",
-            api_key=api_key
+        db_path = "./photography_db"
+
+        if not os.path.exists(db_path):
+            raise FileNotFoundError(
+                f"Database folder '{db_path}' does not exist."
+            )
+
+        client = chromadb.PersistentClient(
+            path=db_path
         )
-        
-        # Get existing collection
+
+        # IMPORTANT:
+        # Chroma 1.5.9 does NOT accept api_key= here.
+        # It reads GEMINI_API_KEY from the environment.
+        embedding_fn = GoogleGeminiEmbeddingFunction(
+            model_name="gemini-embedding-001",
+            task_type="RETRIEVAL_QUERY",
+            dimension=768,
+            api_key_env_var="GEMINI_API_KEY"
+        )
+
         collection = client.get_collection(
             name="photography_guides",
             embedding_function=embedding_fn
         )
+
         return collection
+
     except Exception as e:
-        st.error(f"Failed to load the vector database. Make sure you ran 'python ingest.py' first. Error: {e}")
+        st.error(
+            "Failed to load the vector database. "
+            "Make sure you ran 'python ingest.py' first.\n\n"
+            f"Error: {e}"
+        )
         return None
 
-# Check if API Key is set
-if not api_key:
-    st.info("👈 Please enter your Gemini API Key in the sidebar to start learning!")
-    st.stop()
 
-# Configure global Gemini settings
-genai.configure(api_key=api_key)
+collection = get_db_collection()
 
-# Load the database collection
-collection = get_db_collection(api_key)
 if collection is None:
-    st.warning("⚠️ Vector Database not detected or empty! Follow Step 2 in the tutorial to ingest photography data.")
+    st.warning(
+        "⚠️ Vector Database not detected or empty! "
+        "Run `python ingest.py` first."
+    )
     st.stop()
 
-# 4. CHAT STATE INITIALIZATION
+if collection.count() == 0:
+    st.warning(
+        "⚠️ Vector database exists, but it contains no documents."
+    )
+    st.stop()
+
+# Show small status in sidebar
+st.sidebar.success(
+    f"📚 Knowledge base: {collection.count()} chunks"
+)
+
+
+# 6. CHAT STATE
+
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display conversation history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 5. CONVERSATIONAL RAG PIPELINE
-if prompt := st.chat_input("Ask ShutterBuddy a photography question... (e.g., 'How do I take a portrait with a blurry background?')"):
-    # 5.1 Display user's question
+
+# 7. CHAT INPUT
+
+
+if prompt := st.chat_input(
+    "Ask BotretFoto a photography question..."
+):
+
+    # --------------------------------------------------------
+    # Display user message
+    # --------------------------------------------------------
+
     with st.chat_message("user"):
         st.markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 5.2 RAG Retrieval from ChromaDB
-    with st.status("🔍 Searching photography knowledge base...", expanded=False) as status:
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt
+        }
+    )
+
+    # --------------------------------------------------------
+    # RAG SEARCH
+    # --------------------------------------------------------
+
+    with st.status(
+        "🔍 Searching photography knowledge base...",
+        expanded=False
+    ) as status:
+
         try:
-            # Query top 4 most relevant chunks
             results = collection.query(
                 query_texts=[prompt],
-                n_results=4
+                n_results=min(4, collection.count())
             )
-            
-            # Format retrieved context
-            retrieved_docs = results['documents']
-            context = "\n\n---\n\n".join(retrieved_docs)
-            status.update(label="✓ Knowledge retrieved successfully!", state="complete", expanded=False)
+
+            documents = results.get("documents", [])
+
+            if not documents or not documents[0]:
+                context = "No relevant photography knowledge was found."
+
+            else:
+                context = "\n\n---\n\n".join(
+                    documents[0]
+                )
+
+            status.update(
+                label="✓ Knowledge retrieved successfully!",
+                state="complete",
+                expanded=False
+            )
+
         except Exception as e:
-            st.error(f"Error querying database: {e}")
+            status.update(
+                label="❌ Failed to search knowledge base",
+                state="error"
+            )
+
+            st.error(
+                f"Error querying database: {e}"
+            )
             st.stop()
 
-    # 5.3 Select Dynamic Prompting Instructions based on sidebar toggle
+    # ========================================================
+    # 8. SYSTEM INSTRUCTION
+    # ========================================================
+
     if explanation_level == "Simplified Mentor Mode":
-        system_instruction = (
-            "You are ShutterBuddy, an encouraging and friendly photography mentor helping absolute beginners. "
-            "Your goal is to explain concepts as simply as possible using everyday, relatable analogies. "
-            "For example, compare aperture to window blinds or pupils, shutter speed to a fast-closing shutter door, "
-            "and ISO to sunglasses or artificial light amplifiers.\n\n"
-            "CRITICAL INSTRUCTIONS:\n"
-            "1. Ground your answers strictly on the retrieved knowledge provided below.\n"
-            "2. Avoid using heavy technical terms. If you must use a technical term (like f-stops), explain it immediately in plain English.\n"
-            "3. Keep your response highly encouraging, friendly, and structured. Include 1 easy practice tip at the end.\n"
-            "4. Do NOT make up any information outside of the retrieved knowledge base. If the retrieved knowledge doesn't discuss the question, politely say so."
-        )
-    else:
-        system_instruction = (
-            "You are ShutterBuddy, an expert, professional photography instructor teaching intermediate and advanced students. "
-            "Your goal is to provide deep, technically accurate explanations.\n\n"
-            "CRITICAL INSTRUCTIONS:\n"
-            "1. Ground your answers strictly on the retrieved knowledge provided below.\n"
-            "2. Provide precise, specific camera settings, f-stop calculations, optical mechanics, and step-by-step technical workflows.\n"
-            "3. Write in a formal, educational, and precise tone.\n"
-            "4. Highlight the exact tradeoffs of exposure settings (Aperture vs. Shutter Speed vs. ISO).\n"
-            "5. Do NOT make up any information outside of the retrieved knowledge base. If the retrieved knowledge doesn't discuss the question, politely say so."
-        )
 
-    # 5.4 Format Prompt with Context
-    final_prompt = f"""
-Retrieved Photography Knowledge:
---------------------------------
-{context}
---------------------------------
+        system_instruction = """
+You are BotretFoto, a friendly and encouraging photography mentor.
 
-User's Question: {prompt}
+Your audience consists of beginner photographers.
 
-Please answer the user's question by applying the photography knowledge retrieved above, and matching the requested mentor style. Do not use external knowledge outside of what is in the retrieved text.
+Explain photography concepts using simple everyday analogies.
+
+For example:
+- aperture can be compared to window blinds
+- shutter speed can be compared to how quickly a door opens/closes
+- ISO can be explained as the camera's sensitivity/amplification
+
+IMPORTANT RULES:
+
+1. Ground your answer strictly in the retrieved photography
+   knowledge provided by the application.
+
+2. Avoid unnecessary technical jargon.
+
+3. If you use a technical photography term, explain it
+   immediately in simple language.
+
+4. Give practical and actionable advice.
+
+5. End with one simple photography practice tip.
+
+6. Do not invent facts that are not supported by the
+   retrieved knowledge.
+
+7. If the retrieved knowledge does not contain enough
+   information to answer the question, say so honestly.
 """
 
-    # 5.5 Generate response using Gemini 2.5 Flash
+    else:
+
+        system_instruction = """
+You are BotretFoto, an expert professional photography instructor.
+
+Your audience consists of intermediate and advanced photographers.
+
+Provide technically accurate photography explanations.
+
+IMPORTANT RULES:
+
+1. Ground your answer strictly in the retrieved photography
+   knowledge provided by the application.
+
+2. Explain relevant relationships between:
+   - aperture
+   - shutter speed
+   - ISO
+   - exposure
+   - depth of field
+   - motion blur
+   - focal length
+   - optics
+
+3. Provide precise settings when the retrieved knowledge
+   supports them.
+
+4. Explain tradeoffs between camera settings.
+
+5. Use a formal and educational tone.
+
+6. Do not invent information outside the retrieved knowledge.
+
+7. If the retrieved knowledge does not contain enough
+   information to answer the question, say so honestly.
+"""
+
+    # ========================================================
+    # 9. FINAL RAG PROMPT
+    # ========================================================
+
+    final_prompt = f"""
+Retrieved Photography Knowledge
+================================
+
+{context}
+
+================================
+
+User Question:
+{prompt}
+
+================================
+
+Instructions:
+
+Answer the user's question using the retrieved photography
+knowledge above.
+
+Do not rely on outside information.
+
+Follow the selected mentor explanation style.
+"""
+
+    # ========================================================
+    # 10. GENERATE GEMINI RESPONSE
+    # ========================================================
+
     with st.chat_message("assistant"):
-        with st.spinner("🧠 Thinking and formatting response..."):
+
+        with st.spinner("🧠 Thinking..."):
+
             try:
-                model = genai.GenerativeModel(
-                    model_name="gemini-2.5-flash",
-                    system_instruction=system_instruction
+
+                response = gemini_client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=final_prompt,
+                    config={
+                        "system_instruction": system_instruction
+                    }
                 )
-                
-                # Send the final prompt to the model
-                response = model.generate_content(final_prompt)
-                
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+
+                answer = response.text
+
+                st.markdown(answer)
+
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer
+                    }
+                )
+
             except Exception as e:
-                st.error(f"Error generating response from Gemini API: {e}")
+
+                st.error(
+                    f"Error generating response from Gemini API: {e}"
+                )
