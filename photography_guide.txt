@@ -1,0 +1,82 @@
+# ShutterBuddy Photography Guide: Beginner to Intermediate
+
+## Chapter 1: The Exposure Triangle
+The foundation of photography lies in the Exposure Triangle, which consists of three core settings: Aperture, Shutter Speed, and ISO. These three elements work together to control how much light reaches your camera's sensor and how the final image looks.
+
+### Aperture (The Window)
+- **What it is:** Aperture refers to the opening inside your camera lens that lets light in. Think of it like the pupil of your eye or a window in a room. Opening it wider lets in more light; closing it lets in less light.
+- **How it is measured:** Measured in f-stops (e.g., f/1.8, f/4, f/8, f/16). 
+- **The Confusion:** A *smaller* f-number (like f/1.8) means a *wider* opening. A *larger* f-number (like f/16) means a *narrower* opening.
+- **Creative effect (Depth of Field):** 
+  - **Wide Aperture (f/1.8 - f/2.8):** Creates a "shallow depth of field." The subject is sharp, but the background is beautifully blurred. This blur is called **bokeh**. Perfect for portraits!
+  - **Narrow Aperture (f/8 - f/16):** Creates a "deep depth of field." Everything from the foreground to the background remains sharp and in focus. Perfect for landscapes!
+
+### Shutter Speed (The Shutter)
+- **What it is:** Shutter speed is the length of time your camera's shutter remains open to let light hit the sensor. Think of it as how fast a window's blinds open and close.
+- **How it is measured:** Measured in seconds or fractions of a second (e.g., 1/1000s, 1/250s, 1/4s, 2s).
+- **Creative effect (Motion Blur vs. Freezing Motion):**
+  - **Fast Shutter Speed (1/500s to 1/2000s or faster):** Freezes fast-moving action. Used for sports, wildlife, or children playing. It captures a split second with zero motion blur.
+  - **Slow Shutter Speed (1/30s or slower):** Intentionally blurs motion. Used to capture light trails from cars, smooth flowing waterfalls, or night sky stars. 
+  - *Safety Rule:* If handholding your camera, avoid shooting slower than 1/60s to prevent camera shake (blurry pictures from your hands shaking). Use a tripod for slow shutter speeds.
+
+### ISO (Light Sensitivity)
+- **What it is:** ISO measures your camera sensor's sensitivity to light. Think of it like digital sunglasses or artificial lighting.
+- **How it is measured:** Measured in numbers starting from 100 up to 6400 or more (e.g., ISO 100, ISO 400, ISO 1600, ISO 6400).
+- **Creative effect (Digital Noise/Grain):**
+  - **Low ISO (100 - 200):** Best for bright daylight. Produces the cleanest, sharpest image quality with no grain.
+  - **High ISO (1600 - 6400+):** Best for dark environments or indoor shooting. It amplifies the light digitally, allowing you to shoot in low light. However, the trade-off is **noise or grain**, which makes the image look textured and less sharp.
+
+---
+
+## Chapter 2: Composition 101
+Composition is how you arrange elements inside your frame to tell a story or make an image visually appealing.
+
+### Rule of Thirds
+- Imagine dividing your frame into a 3x3 grid with two horizontal and two vertical lines.
+- Instead of putting your subject directly in the center, place them on one of the grid lines or where the lines intersect (power points).
+- This creates a more balanced, dynamic, and natural-looking composition.
+- For landscapes, place the horizon line on the bottom third (to emphasize the sky) or top third (to emphasize the land).
+
+### Leading Lines
+- Use natural or man-made lines in your scene to guide the viewer’s eye toward your subject.
+- Examples of leading lines: roads, paths, fences, rivers, bridges, or even shadows.
+- Leading lines starting from the foreground and traveling inward create a sense of depth.
+
+### Framing
+- Use elements in your scene to create a "frame within a frame."
+- Examples: shooting through a doorway, an arch, window frames, overhanging tree branches, or foliage.
+- Framing helps isolate your subject, draw direct attention to them, and add depth to your shot.
+
+### Symmetry and Patterns
+- Centering a subject can work exceptionally well when there is symmetry in your scene (e.g., reflections in water, symmetrical architecture).
+- Look for repeating patterns or textures. Breaking a pattern (e.g., one yellow apple in a box of red ones) creates a striking focal point.
+
+---
+
+## Chapter 3: Camera Modes
+Most cameras have a mode dial on top that lets you choose how much control you want over your settings.
+
+### Auto Mode (Auto / green icon)
+- The camera decides Aperture, Shutter Speed, and ISO for you. You just point and shoot. Excellent for beginners, but limits creative control.
+
+### Aperture Priority Mode (A or Av)
+- You choose the **Aperture** (e.g., to control background blur), and the camera automatically calculates the matching **Shutter Speed** to get a perfect exposure. Great for portraits and daily shooting.
+
+### Shutter Priority Mode (S or Tv)
+- You choose the **Shutter Speed** (e.g., 1/1000s to freeze a bird, or 1/2s to blur water), and the camera automatically calculates the matching **Aperture**. Perfect for action and sports.
+
+### Manual Mode (M)
+- You have absolute control. You must set **Aperture**, **Shutter Speed**, and **ISO** manually. It takes practice but gives you complete creative freedom.
+
+---
+
+## Chapter 4: Focus and Lenses
+Understanding your lenses is just as important as understanding exposure.
+
+### Focal Length: Prime vs. Zoom Lenses
+- **Prime Lenses (Fixed Focal Length, e.g., 50mm):** They cannot zoom in or out; you must "zoom with your feet" by moving closer or further away. They typically have wider maximum apertures (f/1.8, f/1.4), making them sharper, lighter, and incredible for blurry background portraits.
+- **Zoom Lenses (Variable Focal Length, e.g., 18-55mm, 70-200mm):** They allow you to change focal lengths instantly. They are highly versatile, but cheaper zoom lenses usually have narrower maximum apertures (f/3.5-f/5.6) and are slightly less sharp in low light.
+
+### Focusing Tips
+- **Single Auto-Focus (AF-S / One Shot):** The camera locks focus once on your subject when you half-press the shutter. Best for stationary subjects like portraits or landscapes.
+- **Continuous Auto-Focus (AF-C / AI Servo):** The camera keeps tracking focus as long as your finger is half-pressing. Essential for moving subjects like sports, runners, or pets.
