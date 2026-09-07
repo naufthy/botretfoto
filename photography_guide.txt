@@ -1,4 +1,4 @@
-# ShutterBuddy Photography Guide: Beginner to Intermediate
+# BotretFoto Photography Guide: Beginner to Intermediate
 
 ## Chapter 1: The Exposure Triangle
 The foundation of photography lies in the Exposure Triangle, which consists of three core settings: Aperture, Shutter Speed, and ISO. These three elements work together to control how much light reaches your camera's sensor and how the final image looks.
