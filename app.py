@@ -4,7 +4,6 @@ import chromadb
 from chromadb.utils.embedding_functions import GoogleGeminiEmbeddingFunction
 from google import genai
 
-
 # 1. PAGE CONFIGURATION
 
 st.set_page_config(
@@ -20,7 +19,6 @@ st.markdown(
 )
 
 # 2. SIDEBAR
-
 st.sidebar.header("⚙️ Configuration")
 
 api_key = st.sidebar.text_input(
@@ -56,8 +54,6 @@ st.sidebar.markdown("""
 
 
 # 3. CHECK API KEY
-
-
 if not api_key:
     st.info(
         "👈 Please enter your Gemini API Key in the sidebar "
@@ -67,8 +63,6 @@ if not api_key:
 
 
 # 4. GEMINI CLIENT
-
-
 try:
     # Google GenAI SDK reads the API key explicitly here.
     gemini_client = genai.Client(api_key=api_key)
@@ -80,8 +74,6 @@ except Exception as e:
 
 
 # 5. LOAD CHROMA VECTOR DATABASE
-
-
 @st.cache_resource
 def get_db_collection():
     try:
@@ -96,9 +88,6 @@ def get_db_collection():
             path=db_path
         )
 
-        # IMPORTANT:
-        # Chroma 1.5.9 does NOT accept api_key= here.
-        # It reads GEMINI_API_KEY from the environment.
         embedding_fn = GoogleGeminiEmbeddingFunction(
             model_name="gemini-embedding-001",
             task_type="RETRIEVAL_QUERY",
@@ -144,8 +133,6 @@ st.sidebar.success(
 
 
 # 6. CHAT STATE
-
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -155,16 +142,11 @@ for message in st.session_state.messages:
 
 
 # 7. CHAT INPUT
-
-
 if prompt := st.chat_input(
     "Ask BotretFoto a photography question..."
 ):
-
-    # --------------------------------------------------------
+    
     # Display user message
-    # --------------------------------------------------------
-
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -175,10 +157,7 @@ if prompt := st.chat_input(
         }
     )
 
-    # --------------------------------------------------------
     # RAG SEARCH
-    # --------------------------------------------------------
-
     with st.status(
         "🔍 Searching photography knowledge base...",
         expanded=False
@@ -201,7 +180,7 @@ if prompt := st.chat_input(
                 )
 
             status.update(
-                label="✓ Knowledge retrieved successfully!",
+                label="Knowledge retrieved successfully!",
                 state="complete",
                 expanded=False
             )
@@ -217,10 +196,8 @@ if prompt := st.chat_input(
             )
             st.stop()
 
-    # ========================================================
+    
     # 8. SYSTEM INSTRUCTION
-    # ========================================================
-
     if explanation_level == "Simplified Mentor Mode":
 
         system_instruction = """
@@ -242,18 +219,15 @@ IMPORTANT RULES:
 
 2. Avoid unnecessary technical jargon.
 
-3. If you use a technical photography term, explain it
-   immediately in simple language.
+3. If you use a technical photography term, explain it immediately in simple language.
 
 4. Give practical and actionable advice.
 
 5. End with one simple photography practice tip.
 
-6. Do not invent facts that are not supported by the
-   retrieved knowledge.
+6. Do not invent facts that are not supported by the retrieved knowledge.
 
-7. If the retrieved knowledge does not contain enough
-   information to answer the question, say so honestly.
+7. If the retrieved knowledge does not contain enough information to answer the question, say so honestly.
 """
 
     else:
@@ -267,8 +241,7 @@ Provide technically accurate photography explanations.
 
 IMPORTANT RULES:
 
-1. Ground your answer strictly in the retrieved photography
-   knowledge provided by the application.
+1. Ground your answer strictly in the retrieved photography knowledge provided by the application.
 
 2. Explain relevant relationships between:
    - aperture
@@ -280,8 +253,7 @@ IMPORTANT RULES:
    - focal length
    - optics
 
-3. Provide precise settings when the retrieved knowledge
-   supports them.
+3. Provide precise settings when the retrieved knowledge supports them.
 
 4. Explain tradeoffs between camera settings.
 
@@ -289,14 +261,11 @@ IMPORTANT RULES:
 
 6. Do not invent information outside the retrieved knowledge.
 
-7. If the retrieved knowledge does not contain enough
-   information to answer the question, say so honestly.
+7. If the retrieved knowledge does not contain enough information to answer the question, say so honestly.
 """
 
-    # ========================================================
+    
     # 9. FINAL RAG PROMPT
-    # ========================================================
-
     final_prompt = f"""
 Retrieved Photography Knowledge
 ================================
@@ -320,10 +289,8 @@ Do not rely on outside information.
 Follow the selected mentor explanation style.
 """
 
-    # ========================================================
+    
     # 10. GENERATE GEMINI RESPONSE
-    # ========================================================
-
     with st.chat_message("assistant"):
 
         with st.spinner("🧠 Thinking..."):
@@ -331,7 +298,7 @@ Follow the selected mentor explanation style.
             try:
 
                 response = gemini_client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.5-flash",
                     contents=final_prompt,
                     config={
                         "system_instruction": system_instruction

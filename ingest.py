@@ -9,8 +9,6 @@ def main():
     # 1. Get Gemini API Key
     api_key = os.environ.get("GEMINI_API_KEY")
 
-    api_key = os.environ.get("GEMINI_API_KEY")
-
     if not api_key:
         print("[!] GEMINI_API_KEY environment variable belum diset.")
         print('    Jalankan: $env:GEMINI_API_KEY="YOUR_API_KEY"')
@@ -60,15 +58,6 @@ def main():
     client = chromadb.PersistentClient(path=db_path)
 
     # 5. Gemini embedding function
-    #
-    # Chroma sekarang menggunakan:
-    # GoogleGeminiEmbeddingFunction
-    #
-    # Model terbaru:
-    # gemini-embedding-001
-    #
-    # RETRIEVAL_DOCUMENT digunakan untuk dokumen yang
-    # akan disimpan di vector database.
     print("[+] Initializing Gemini embedding function...")
 
     embedding_fn = GoogleGeminiEmbeddingFunction(
