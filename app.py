@@ -14,8 +14,7 @@ st.set_page_config(
 
 st.title("📸 BotretFoto")
 st.markdown(
-    "##### *Your friendly neighborhood photography mentor—"
-    "helping you learn from the ground up!*"
+    "##### *Your friendly neighborhood photography mentor, helping you learn photography from the ground up!*"
 )
 
 # 2. SIDEBAR

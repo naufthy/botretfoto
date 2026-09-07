@@ -1,10 +1,8 @@
 # 📸 BotretFoto
 
-BotretFoto is an AI-powered photography mentor built with
-Retrieval-Augmented Generation (RAG).
+BotretFoto is an AI-powered photography mentor built with Retrieval-Augmented Generation (RAG).
 
-It helps users learn photography concepts using an expert-curated
-photography knowledge base.
+It helps users learn photography concepts using an expert-curated photography knowledge base.
 
 ## Features
 
